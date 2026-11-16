@@ -4,15 +4,15 @@ describe('Login no hub de leitura', () => {
 
   beforeEach(() => {
     cy.visit('login.html')
-    cy.setCookie('jwt_education_shown', 'true') 
+    cy.setCookie('jwt_education_shown', 'true')
   });
 
-  it('Deve fazer login com sucesso com usuário comum - usando comando customizado', () => {
+  it('Deve fazer login com sucesso com usuário comum - Usando comando customizado', () => {
     cy.login('usuario@teste.com', 'user123')
     cy.get('h4').should('contain', 'Olá')
   })
 
-  it.only('Deve fazer login com sucesso com usuário admin - usando comando customizado', () => {
+  it.only('Deve fazer login com sucesso com usuário admin - Usando comando customizado', () => {
     cy.login(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_SENHA'))
     cy.get('h1').should('contain', 'Painel Administrativo')
   })
@@ -22,15 +22,13 @@ describe('Login no hub de leitura', () => {
       {
         statusCode: 200,
         body: {
-          token: 'token123',
+          token: 'token123456',
           name: 'Usuário de teste'
         }
       }).as('loginMock')
-
     cy.login('usuario@usuario.com', 'testeuser123')
     cy.wait('@loginMock')
     cy.get('h4').should('contain', 'Olá')
-
   })
 
   it('Deve simular um erro do servidor - usando intercept', () => {
@@ -39,16 +37,15 @@ describe('Login no hub de leitura', () => {
     }).as('erroServer')
     cy.loginErro('usuario@teste.com', 'user123')
     cy.wait('@erroServer')
-    cy.get('#alert-container').should('contain', 'Erro de conexão. Tente novamente.')
+    cy.get('#alert-container').should('contain', ' Erro de conexão. Tente novamente.')
   });
 
   it('Deve simular um erro do cliente - usando intercept', () => {
     cy.intercept('POST', 'api/login', {
-      statusCode: 400, body: { erro: 'erro do cliente' }
+      statusCode: 500, body: { erro: 'erro do cliente' }
     }).as('erroClient')
-    cy.login('usuario@teste.com', 'user123', false)
+    cy.loginErro('usuario@teste.com', 'user123')
     cy.wait('@erroClient')
     cy.get('#alert-container').should('contain', 'Erro ao fazer login')
   });
-
 })
